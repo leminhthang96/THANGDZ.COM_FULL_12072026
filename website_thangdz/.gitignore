@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+.pnp
+.pnp.*
+
+# Testing & Coverage
+coverage/
+
+# Next.js Build Output
+.next/
+frontend/.next/
+out/
+frontend/out/
+build/
+frontend/build/
+
+# Python Virtual Environments
+venv/
+.venv/
+backend/venv/
+backend/.venv/
+env/
+ENV/
+*.tsbuildinfo
+
+# Python Caches & Compiled files
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ipynb_checkpoints/
+
+# PostgreSQL Local Data
+pg_data/
+
+# Environment Variables & Secrets
+.env
+.env*.local
+*.env
+backend/.env
+*.pem
+
+# IDEs & System Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Debug Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*

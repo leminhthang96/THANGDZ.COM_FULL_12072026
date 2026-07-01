@@ -1,0 +1,23 @@
+{
+  "skill_name": "cc-test-case-writer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Từ user story sau hãy viết test case: As a khách hàng, I want to thanh toán đơn hàng bằng MoMo so that tôi hoàn tất đơn nhanh. AC1 Given đơn hàng hợp lệ When khách chọn MoMo và xác nhận thanh toán Then hệ thống cập nhật đơn hàng thành Đã thanh toán. AC2 Given số tiền thanh toán khác tổng đơn When MoMo trả kết quả Then hệ thống không cập nhật trạng thái đơn. AC3 Given MoMo timeout When khách quay lại đơn hàng Then hệ thống hiển thị trạng thái Chờ thanh toán.",
+      "expected_output": "Test case suite có traceability về AC1-AC3, ít nhất happy path, business validation, timeout/error path, test data, steps, expected results và coverage matrix.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Review bộ test case này giúp tôi: TC-001 login thành công, step: nhập user/pass, expected: đăng nhập ok. TC-002 login sai mật khẩu, expected: báo lỗi. Nguồn yêu cầu: người dùng bị khóa sau 5 lần sai mật khẩu, admin có thể mở khóa, user thường không được mở khóa.",
+      "expected_output": "Review chỉ ra thiếu traceability, thiếu test data/preconditions, expected result mơ hồ, thiếu locked account flow, permission case admin/user, và đề xuất test cases bổ sung.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Dựa vào Use Case đăng ký tài khoản: Actor Khách hàng; Main flow nhập email, mật khẩu, xác nhận email; Alternative email đã tồn tại; Exception email service lỗi. Hãy tạo UAT checklist và coverage matrix.",
+      "expected_output": "UAT checklist và coverage matrix bao phủ main flow, email existed alternative, email service exception, có preconditions, data, expected results, priority và risk/gap nếu thiếu môi trường email.",
+      "files": []
+    }
+  ]
+}
