@@ -24,6 +24,8 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+import os
+
 # Cấu hình CORS (Cross-Origin Resource Sharing)
 # Cho phep Front-end Next.js goi API tu bat ky port dev nao o local (vi du: 3000, 3001)
 origins = [
@@ -32,6 +34,10 @@ origins = [
     "http://127.0.0.1:3000",
     "http://127.0.0.1:3001",
 ]
+
+env_origins = os.getenv("CORS_ORIGINS")
+if env_origins:
+    origins.extend([origin.strip() for origin in env_origins.split(",") if origin.strip()])
 
 app.add_middleware(
     CORSMiddleware,

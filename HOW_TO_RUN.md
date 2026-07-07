@@ -9,9 +9,9 @@ Dự án bao gồm 3 phần chính chạy độc lập trực tiếp trên môi 
 * **Yêu cầu:** Máy đã cài sẵn Python và cơ sở dữ liệu PostgreSQL đang chạy.
 * **Các bước thực hiện:**
 
-1. Mở Terminal mới, di chuyển đến thư mục backend:
+1. Mở Terminal mới từ thư mục gốc của dự án (`THANGDZ.COM_FULL_01072026`) và di chuyển đến thư mục backend:
    ```powershell
-   cd d:\du_an_ca_nhan\WEBSITE_THANGDZ\THANGDZ.COM_FULL_01072026\website_thangdz\backend
+   cd website_thangdz\backend
    ```
 
 2. Tạo môi trường ảo Python (Venv):
@@ -48,9 +48,9 @@ Dự án bao gồm 3 phần chính chạy độc lập trực tiếp trên môi 
 * **Yêu cầu:** Máy đã cài đặt Node.js.
 * **Các bước thực hiện:**
 
-1. Mở Terminal mới, di chuyển đến thư mục frontend của website chính:
+1. Mở Terminal mới từ thư mục gốc của dự án (`THANGDZ.COM_FULL_01072026`) và di chuyển đến thư mục frontend của website chính:
    ```powershell
-   cd d:\du_an_ca_nhan\WEBSITE_THANGDZ\THANGDZ.COM_FULL_01072026\website_thangdz\frontend
+   cd website_thangdz\frontend
    ```
 
 2. Cài đặt các gói thư viện Node.js:
@@ -71,9 +71,9 @@ Dự án bao gồm 3 phần chính chạy độc lập trực tiếp trên môi 
 * **Yêu cầu:** Máy đã cài đặt Node.js.
 * **Các bước thực hiện:**
 
-1. Mở Terminal mới, di chuyển đến thư mục quản trị:
+1. Mở Terminal mới từ thư mục gốc của dự án (`THANGDZ.COM_FULL_01072026`) và di chuyển đến thư mục quản trị:
    ```powershell
-   cd d:\du_an_ca_nhan\WEBSITE_THANGDZ\THANGDZ.COM_FULL_01072026\web_quantri_thangdz
+   cd web_quantri_thangdz
    ```
 
 2. Cài đặt các gói thư viện Node.js:
