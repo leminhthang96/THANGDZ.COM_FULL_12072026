@@ -285,7 +285,7 @@ elif command -v lsof >/dev/null 2>&1; then
   kill -9 $(lsof -t -i:3000) 2>/dev/null || true
 fi
 sudo -u $REAL_USER pm2 delete "thangdz-frontend" 2>/dev/null || true
-sudo -u $REAL_USER pm2 start npm --name "thangdz-frontend" -- start -- -p 3000
+sudo -u $REAL_USER pm2 start node --name "thangdz-frontend" --cwd "$PROJECT_DIR/website_thangdz/frontend" -- node_modules/next/dist/bin/next start -p 3000
 
 # 10. Cấu hình và Khởi chạy Trang Quản Trị (Admin Frontend)
 echo -e "\n${YELLOW}--- KHỞI CHẠY TRANG QUẢN TRỊ (ADMIN) ---${NC}"
@@ -311,7 +311,7 @@ elif command -v lsof >/dev/null 2>&1; then
   kill -9 $(lsof -t -i:3001) 2>/dev/null || true
 fi
 sudo -u $REAL_USER pm2 delete "thangdz-admin" 2>/dev/null || true
-sudo -u $REAL_USER pm2 start npm --name "thangdz-admin" -- start -- -p 3001
+sudo -u $REAL_USER pm2 start node --name "thangdz-admin" --cwd "$PROJECT_DIR/web_quantri_thangdz" -- node_modules/next/dist/bin/next start -p 3001
 
 # Lưu trạng thái PM2 và cấu hình startup để tự chạy lại khi VPS reboot
 echo -e "Thiết lập PM2 khởi động cùng hệ thống..."
