@@ -73,14 +73,15 @@ cd "$PROJECT_DIR/backend"
 # 7. Cập nhật Frontend Website
 echo "Cập nhật và Build Frontend Website..."
 cd "$PROJECT_DIR/website_thangdz/frontend"
-npm install
+npm install --legacy-peer-deps
 NODE_OPTIONS="--max-old-space-size=1536" npm run build
 
 # 8. Cập nhật Frontend Admin
 echo "Cập nhật và Build Frontend Admin..."
 cd "$PROJECT_DIR/web_quantri_thangdz"
-npm install
+npm install --legacy-peer-deps
 NODE_OPTIONS="--max-old-space-size=1536" npm run build
+
 
 
 # 9. Khởi động lại các dịch vụ qua PM2

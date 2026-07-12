@@ -274,8 +274,9 @@ chown $REAL_USER:$REAL_USER .env.local
 
 # Cài đặt dependency & Build
 echo -e "Đang cài đặt thư viện & build Next.js (có thể mất 1-2 phút)..."
-sudo -u $REAL_USER npm install
+sudo -u $REAL_USER npm install --legacy-peer-deps
 sudo -u $REAL_USER NODE_OPTIONS="--max-old-space-size=1536" npm run build
+
 
 # Chạy PM2 dưới quyền REAL_USER
 echo -e "Khởi chạy Website Frontend bằng PM2..."
@@ -300,7 +301,7 @@ chown $REAL_USER:$REAL_USER .env.local
 
 # Cài đặt dependency & Build
 echo -e "Đang cài đặt thư viện & build trang quản trị (có thể mất 1-2 phút)..."
-sudo -u $REAL_USER npm install
+sudo -u $REAL_USER npm install --legacy-peer-deps
 sudo -u $REAL_USER NODE_OPTIONS="--max-old-space-size=1536" npm run build
 
 # Chạy PM2 dưới quyền REAL_USER
