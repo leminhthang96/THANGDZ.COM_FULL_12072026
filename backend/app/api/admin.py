@@ -841,3 +841,150 @@ def refund_payment(
     db.commit()
     db.refresh(payment)
     return ok_response(payment, "Hoan tien thanh cong.")
+
+
+# --- SYSTEM UPDATE ENDPOINTS ---
+
+@router.get("/update/check")
+def check_system_update(current_user: User = Depends(check_admin)):
+    import json
+    import os
+    import urllib.request
+    from pathlib import Path
+
+    project_root = Path(__file__).resolve().parents[3]
+    version_file = project_root / "version.json"
+    
+    if not version_file.exists():
+        version_file = Path(__file__).resolve().parents[2] / "version.json"
+
+    if not version_file.exists():
+        default_version = {
+            "version": "1.0.0",
+            "update_url": "https://pub-60c1c60dee41469a9ff4b575ea7e4b43.r2.dev/websiteclone",
+            "changelog": "Khởi tạo hệ thống cập nhật tự động"
+        }
+        try:
+            with open(version_file, "w", encoding="utf-8") as f:
+                json.dump(default_version, f, indent=2)
+        except Exception:
+            pass
+        local_data = default_version
+    else:
+        try:
+            with open(version_file, "r", encoding="utf-8") as f:
+                local_data = json.load(f)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Lỗi đọc version.json cục bộ: {str(e)}")
+
+    current_v = local_data.get("version", "1.0.0")
+    update_url = local_data.get("update_url", "https://pub-60c1c60dee41469a9ff4b575ea7e4b43.r2.dev/websiteclone")
+
+    remote_version_url = f"{update_url.rstrip('/')}/version.json"
+    try:
+        req = urllib.request.Request(
+            remote_version_url,
+            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+        )
+        with urllib.request.urlopen(req, timeout=5) as response:
+            remote_data = json.loads(response.read().decode('utf-8'))
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Không thể kết nối đến máy chủ Cloudflare R2 để kiểm tra cập nhật. Lỗi: {str(e)}"
+        )
+
+    latest_v = remote_data.get("version", "1.0.0")
+    changelog = remote_data.get("changelog", "")
+
+    def parse_v(v_str):
+        try:
+            return [int(x) for x in v_str.strip().split(".")]
+        except Exception:
+            return [0, 0, 0]
+
+    has_update = parse_v(latest_v) > parse_v(current_v)
+
+    return {
+        "success": True,
+        "current_version": current_v,
+        "latest_version": latest_v,
+        "has_update": has_update,
+        "changelog": changelog,
+        "update_url": update_url
+    }
+
+
+@router.post("/update/run")
+def run_system_update(current_user: User = Depends(check_admin)):
+    import os
+    import subprocess
+    from pathlib import Path
+
+    project_root = Path(__file__).resolve().parents[3]
+    lock_file = project_root / "update.lock"
+    log_file = project_root / "update.log"
+    update_script = project_root / "update.sh"
+
+    if not update_script.exists():
+        project_root = Path(__file__).resolve().parents[2]
+        lock_file = project_root / "update.lock"
+        log_file = project_root / "update.log"
+        update_script = project_root / "update.sh"
+
+    if not update_script.exists():
+        raise HTTPException(status_code=404, detail="Không tìm thấy file kịch bản update.sh trên VPS.")
+
+    if lock_file.exists():
+        raise HTTPException(status_code=400, detail="Hệ thống đã đang trong quá trình cập nhật.")
+
+    try:
+        with open(log_file, "w", encoding="utf-8") as f:
+            f.write("Khởi động quá trình cập nhật hệ thống...\n")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Không thể khởi tạo tệp log cập nhật: {str(e)}")
+
+    try:
+        cmd = f"nohup bash {update_script} > {log_file} 2>&1 &"
+        subprocess.Popen(cmd, shell=True, cwd=str(project_root))
+    except Exception as e:
+        if lock_file.exists():
+            os.remove(lock_file)
+        raise HTTPException(status_code=500, detail=f"Không thể kích hoạt tiến trình cập nhật: {str(e)}")
+
+    return {
+        "success": True,
+        "message": "Đang chạy cập nhật ở chế độ nền. Vui lòng theo dõi log cập nhật."
+    }
+
+
+@router.get("/update/status")
+def get_system_update_status(current_user: User = Depends(check_admin)):
+    import os
+    from pathlib import Path
+
+    project_root = Path(__file__).resolve().parents[3]
+    lock_file = project_root / "update.lock"
+    log_file = project_root / "update.log"
+
+    if not log_file.exists():
+        project_root = Path(__file__).resolve().parents[2]
+        lock_file = project_root / "update.lock"
+        log_file = project_root / "update.log"
+
+    is_updating = lock_file.exists()
+    
+    logs = ""
+    if log_file.exists():
+        try:
+            with open(log_file, "r", encoding="utf-8", errors="replace") as f:
+                logs = f.read()
+        except Exception:
+            logs = "Lỗi khi đọc file log."
+
+    return {
+        "success": True,
+        "is_updating": is_updating,
+        "logs": logs
+    }
+

@@ -158,4 +158,10 @@ export const api = {
     formData.append('file', file);
     return uploadFetch('/admin/media/upload', formData);
   },
+
+  // System Update
+  checkUpdate: () => apiFetch('/admin/update/check'),
+  runUpdate: () => apiFetch('/admin/update/run', { method: 'POST' }),
+  getUpdateStatus: () => apiFetch('/admin/update/status'),
 };
+
