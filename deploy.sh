@@ -279,6 +279,11 @@ sudo -u $REAL_USER NODE_OPTIONS="--max-old-space-size=1536" npm run build
 
 # Chạy PM2 dưới quyền REAL_USER
 echo -e "Khởi chạy Website Frontend bằng PM2..."
+if command -v fuser >/dev/null 2>&1; then
+  fuser -k 3000/tcp 2>/dev/null || true
+elif command -v lsof >/dev/null 2>&1; then
+  kill -9 $(lsof -t -i:3000) 2>/dev/null || true
+fi
 sudo -u $REAL_USER pm2 delete "thangdz-frontend" 2>/dev/null || true
 sudo -u $REAL_USER pm2 start npm --name "thangdz-frontend" -- start -- -p 3000
 
@@ -300,6 +305,11 @@ sudo -u $REAL_USER NODE_OPTIONS="--max-old-space-size=1536" npm run build
 
 # Chạy PM2 dưới quyền REAL_USER
 echo -e "Khởi chạy Admin Frontend bằng PM2..."
+if command -v fuser >/dev/null 2>&1; then
+  fuser -k 3001/tcp 2>/dev/null || true
+elif command -v lsof >/dev/null 2>&1; then
+  kill -9 $(lsof -t -i:3001) 2>/dev/null || true
+fi
 sudo -u $REAL_USER pm2 delete "thangdz-admin" 2>/dev/null || true
 sudo -u $REAL_USER pm2 start npm --name "thangdz-admin" -- start -- -p 3001
 
