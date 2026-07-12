@@ -275,12 +275,12 @@ chown $REAL_USER:$REAL_USER .env.local
 # Cài đặt dependency & Build
 echo -e "Đang cài đặt thư viện & build Next.js (có thể mất 1-2 phút)..."
 sudo -u $REAL_USER npm install
-sudo -u $REAL_USER npm run build
+sudo -u $REAL_USER NODE_OPTIONS="--max-old-space-size=1536" npm run build
 
 # Chạy PM2 dưới quyền REAL_USER
 echo -e "Khởi chạy Website Frontend bằng PM2..."
 sudo -u $REAL_USER pm2 delete "thangdz-frontend" 2>/dev/null || true
-sudo -u $REAL_USER pm2 start npm --name "thangdz-frontend" -- start -- -p 3000
+sudo -u $REAL_USER pm2 start node_modules/next/dist/bin/next --name "thangdz-frontend" -- start -- -p 3000
 
 # 10. Cấu hình và Khởi chạy Trang Quản Trị (Admin Frontend)
 echo -e "\n${YELLOW}--- KHỞI CHẠY TRANG QUẢN TRỊ (ADMIN) ---${NC}"
@@ -296,12 +296,12 @@ chown $REAL_USER:$REAL_USER .env.local
 # Cài đặt dependency & Build
 echo -e "Đang cài đặt thư viện & build trang quản trị (có thể mất 1-2 phút)..."
 sudo -u $REAL_USER npm install
-sudo -u $REAL_USER npm run build
+sudo -u $REAL_USER NODE_OPTIONS="--max-old-space-size=1536" npm run build
 
 # Chạy PM2 dưới quyền REAL_USER
 echo -e "Khởi chạy Admin Frontend bằng PM2..."
 sudo -u $REAL_USER pm2 delete "thangdz-admin" 2>/dev/null || true
-sudo -u $REAL_USER pm2 start npm --name "thangdz-admin" -- start -- -p 3001
+sudo -u $REAL_USER pm2 start node_modules/next/dist/bin/next --name "thangdz-admin" -- start -- -p 3001
 
 # Lưu trạng thái PM2 và cấu hình startup để tự chạy lại khi VPS reboot
 echo -e "Thiết lập PM2 khởi động cùng hệ thống..."

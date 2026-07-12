@@ -74,13 +74,14 @@ cd "$PROJECT_DIR/backend"
 echo "Cập nhật và Build Frontend Website..."
 cd "$PROJECT_DIR/website_thangdz/frontend"
 npm install
-npm run build
+NODE_OPTIONS="--max-old-space-size=1536" npm run build
 
 # 8. Cập nhật Frontend Admin
 echo "Cập nhật và Build Frontend Admin..."
 cd "$PROJECT_DIR/web_quantri_thangdz"
 npm install
-npm run build
+NODE_OPTIONS="--max-old-space-size=1536" npm run build
+
 
 # 9. Khởi động lại các dịch vụ qua PM2
 echo "Khởi động lại các dịch vụ PM2..."
