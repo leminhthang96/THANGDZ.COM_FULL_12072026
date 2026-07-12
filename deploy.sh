@@ -274,6 +274,7 @@ chown $REAL_USER:$REAL_USER .env.local
 
 # Cài đặt dependency & Build
 echo -e "Đang cài đặt thư viện & build Next.js (có thể mất 1-2 phút)..."
+rm -rf node_modules
 sudo -u $REAL_USER npm install --legacy-peer-deps
 sudo -u $REAL_USER NODE_OPTIONS="--max-old-space-size=1536" npm run build
 
@@ -286,7 +287,7 @@ elif command -v lsof >/dev/null 2>&1; then
   kill -9 $(lsof -t -i:3000) 2>/dev/null || true
 fi
 sudo -u $REAL_USER pm2 delete "thangdz-frontend" 2>/dev/null || true
-sudo -u $REAL_USER pm2 start node --name "thangdz-frontend" --cwd "$PROJECT_DIR/website_thangdz/frontend" -- node_modules/next/dist/bin/next start -p 3000
+sudo -u $REAL_USER pm2 start node_modules/next/dist/bin/next --name "thangdz-frontend" --interpreter node --cwd "$PROJECT_DIR/website_thangdz/frontend" -- start -p 3000
 
 # 10. Cấu hình và Khởi chạy Trang Quản Trị (Admin Frontend)
 echo -e "\n${YELLOW}--- KHỞI CHẠY TRANG QUẢN TRỊ (ADMIN) ---${NC}"
@@ -301,6 +302,7 @@ chown $REAL_USER:$REAL_USER .env.local
 
 # Cài đặt dependency & Build
 echo -e "Đang cài đặt thư viện & build trang quản trị (có thể mất 1-2 phút)..."
+rm -rf node_modules
 sudo -u $REAL_USER npm install --legacy-peer-deps
 sudo -u $REAL_USER NODE_OPTIONS="--max-old-space-size=1536" npm run build
 
@@ -312,7 +314,7 @@ elif command -v lsof >/dev/null 2>&1; then
   kill -9 $(lsof -t -i:3001) 2>/dev/null || true
 fi
 sudo -u $REAL_USER pm2 delete "thangdz-admin" 2>/dev/null || true
-sudo -u $REAL_USER pm2 start node --name "thangdz-admin" --cwd "$PROJECT_DIR/web_quantri_thangdz" -- node_modules/next/dist/bin/next start -p 3001
+sudo -u $REAL_USER pm2 start node_modules/next/dist/bin/next --name "thangdz-admin" --interpreter node --cwd "$PROJECT_DIR/web_quantri_thangdz" -- start -p 3001
 
 # Lưu trạng thái PM2 và cấu hình startup để tự chạy lại khi VPS reboot
 echo -e "Thiết lập PM2 khởi động cùng hệ thống..."
