@@ -36,7 +36,7 @@ Dự án bao gồm 3 phần chính chạy độc lập trực tiếp trên môi 
 
 5. Khởi chạy API Server với Uvicorn:
    ```powershell
-   uvicorn app.main:app --reload
+   python -m uvicorn app.main:app --reload
    ```
    * *Hệ thống sẽ tự động tạo cơ sở dữ liệu `thangdz_web` nếu chưa tồn tại, tự động đồng bộ hóa bảng biểu và nạp dữ liệu mẫu (seed database).*
    * Tài liệu API tương tác (Swagger UI): `http://localhost:8000/docs`

@@ -173,7 +173,7 @@ Khi bạn muốn thay đổi URL Webhook n8n (ví dụ thay đổi kịch bản 
    ```
 3. Upload file `update.zip` và `version.json` mới lên R2 Cloudflare.
 
-### Bước 3: Áp dụng thay đổi trên VPS
+### Bước 3: Áp dụng thay đổi trên Sever VPS 
 
 Do hệ thống lưu cache file cấu hình `.env.local` cũ trên VPS để đảm bảo an toàn dữ liệu, bạn cần thực hiện 1 trong 2 cách sau để áp dụng URL mới:
 
