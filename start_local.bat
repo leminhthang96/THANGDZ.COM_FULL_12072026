@@ -1,22 +1,20 @@
 @echo off
-:: Định cấu hình mã hóa Tiếng Việt (UTF-8)
-chcp 65001 > nul
-title THANGDZ.COM - Công Cụ Khởi Chạy Local Nhanh
+title THANGDZ.COM - Cong Cu Khoi Chay Local Nhanh
 color 0b
 
 :MENU
 cls
 echo ===================================================================
-echo               CÔNG CỤ KHỞI CHẠY DỰ ÁN THANGDZ.COM LOCAL
+echo               CONG CU KHOI CHAY DU AN THANGDZ.COM LOCAL
 echo ===================================================================
 echo.
-echo   [1] Khởi chạy chế độ Development (Nhanh, Tự động Hot-Reload)
-echo   [2] Build và Khởi chạy chế độ Production (Thử nghiệm hiệu năng thực tế)
-echo   [3] Cài đặt / Cập nhật thư viện cho cả 3 dự án (Chạy lần đầu)
-echo   [4] Thoát
+echo   [1] Khoi chay che do Development (Nhanh, Tu dong Hot-Reload)
+echo   [2] Build va Khoi chay che do Production (Thu nghiem hieu nang)
+echo   [3] Cai dat / Cap nhat thu vien cho ca 3 du an (Chay lan dau)
+echo   [4] Thoat
 echo.
 echo ===================================================================
-set /p CHOICE="Nhập lựa chọn của bạn (1-4) và nhấn Enter: "
+set /p CHOICE="Nhap lua chon cua ban (1-4) va nhan Enter: "
 
 if "%CHOICE%"=="1" goto DEV_MODE
 if "%CHOICE%"=="2" goto PROD_MODE
@@ -27,22 +25,22 @@ goto MENU
 :DEV_MODE
 cls
 echo ===================================================================
-echo               ĐANG KHỞI CHẠY CHẾ ĐỘ PHÁT TRIỂN (DEV)
+echo               DANG KHOI CHAY CHE DO PHAT TRIEN (DEV)
 echo ===================================================================
 echo.
-echo [*] Đang mở cửa sổ Terminal mới cho Backend (FastAPI - Port 8000)...
+echo [*] Dang mo cua so Terminal moi cho Backend (FastAPI - Port 8000)...
 start "Backend API - FastAPI" cmd /k "cd backend && venv\Scripts\activate.bat && python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000"
 
-echo [*] Đang mở cửa sổ Terminal mới cho Website Frontend (Next.js - Port 3000)...
+echo [*] Dang mo Website Frontend (Next.js - Port 3000)...
 start "Website Frontend" cmd /k "cd website_thangdz\frontend && npm run dev"
 
-echo [*] Đang mở cửa sổ Terminal mới cho Admin Dashboard (Next.js - Port 3001)...
+echo [*] Dang mo Admin Dashboard (Next.js - Port 3001)...
 start "Admin Dashboard" cmd /k "cd web_quantri_thangdz && npm run dev"
 
 echo.
 echo ===================================================================
-echo  ĐÃ MỞ THÀNH CÔNG 3 CỬA SỔ DỊCH VỤ DƯỚI LOCAL:
-echo  - Backend API:       http://localhost:8000/docs (Swagger UI)
+echo  DA MO THANH CONG 3 CUA SO DICH VU DUOI LOCAL:
+echo  - Backend API:       http://localhost:8000/docs
 echo  - Website Frontend:  http://localhost:3000
 echo  - Admin Frontend:    http://localhost:3001
 echo ===================================================================
@@ -53,31 +51,31 @@ goto MENU
 :PROD_MODE
 cls
 echo ===================================================================
-echo               ĐANG BIÊN DỊCH VÀ KHỞI CHẠY PRODUCTION
+echo               DANG BIEN DICH VA KHOI CHAY PRODUCTION
 echo ===================================================================
 echo.
-echo [!] Quá trình biên dịch Next.js (Build) có thể mất 1-2 phút...
+echo [!] Qua trinh bien dich Next.js (Build) co the mat 1-2 phut...
 echo.
 
-echo [*] Đang chạy Build Website Frontend...
+echo [*] Dang chay Build Website Frontend...
 cd website_thangdz\frontend
 call npm run build
 cd ..\..
 
-echo [*] Đang chạy Build Admin Dashboard...
+echo [*] Dang chay Build Admin Dashboard...
 cd web_quantri_thangdz
 call npm run build
 cd ..
 
 echo.
-echo [*] Đang khởi chạy các tiến trình Production...
+echo [*] Dang khoi chay cac tien trinh Production...
 start "Backend API - FastAPI" cmd /k "cd backend && venv\Scripts\activate.bat && python -m uvicorn app.main:app --host 127.0.0.1 --port 8000"
 start "Website Frontend (Prod)" cmd /k "cd website_thangdz\frontend && npm run start -- -p 3000"
 start "Admin Dashboard (Prod)" cmd /k "cd web_quantri_thangdz && npm run start"
 
 echo.
 echo ===================================================================
-echo  ĐÃ BIÊN DỊCH VÀ KHỞI CHẠY CHẾ ĐỘ PRODUCTION TRÊN LOCAL:
+echo  DA BIEN DICH VA KHOI CHAY CHE DO PRODUCTION TREN LOCAL:
 echo  - Backend API:       http://localhost:8000/docs
 echo  - Website Frontend:  http://localhost:3000
 echo  - Admin Frontend:    http://localhost:3001
@@ -89,14 +87,14 @@ goto MENU
 :INSTALL_DEPS
 cls
 echo ===================================================================
-echo               ĐANG CÀI ĐẶT / CẬP NHẬT THƯ VIỆN DỰ ÁN
+echo               DANG CAI DAT / CAP NHAT THU VIEN DU AN
 echo ===================================================================
 echo.
 
-echo [*] 1/3. Cài đặt Python package cho Backend...
+echo [*] 1/3. Cai dat Python package cho Backend...
 cd backend
 if not exist venv (
-    echo [!] Chưa tìm thấy thư mục venv, đang tạo môi trường ảo Python...
+    echo [!] Chua tim thay thu muc venv, dang tao moi truong ao Python...
     python -m venv venv
 )
 call venv\Scripts\activate.bat
@@ -104,20 +102,20 @@ pip install -r requirements.txt
 cd ..
 
 echo.
-echo [*] 2/3. Cài đặt Node modules cho Website Frontend...
+echo [*] 2/3. Cai dat Node modules cho Website Frontend...
 cd website_thangdz\frontend
 call npm install --legacy-peer-deps
 cd ..\..
 
 echo.
-echo [*] 3/3. Cài đặt Node modules cho Admin Dashboard...
+echo [*] 3/3. Cai dat Node modules cho Admin Dashboard...
 cd web_quantri_thangdz
 call npm install --legacy-peer-deps
 cd ..
 
 echo.
 echo ===================================================================
-echo               HOÀN TẤT CÀI ĐẶT THƯ VIỆN DỰ ÁN!
+echo               HOAN TAT CAI DAT THU VIEN DU AN!
 echo ===================================================================
 echo.
 pause
@@ -125,6 +123,6 @@ goto MENU
 
 :EXIT_PROG
 cls
-echo Cảm ơn bạn đã sử dụng bộ công cụ! Tạm biệt.
+echo Cam on ban da su dung bo cong cu! Tam biet.
 timeout /t 2 > nul
 exit
