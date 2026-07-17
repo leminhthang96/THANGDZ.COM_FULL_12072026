@@ -37,43 +37,59 @@ def init_db():
     username = parsed.username or "postgresql"
     password = parsed.password or "Thang123456"
     
-    # First connect as 'postgres' (which is passwordless and exists by default on local pg_data)
-    postgres_url = f"postgresql://postgres@{host}:{port}/postgres"
+    # We will try a few connection strings to postgres database to verify/create roles & database
+    connection_attempts = [
+        f"postgresql://postgres:{password}@{host}:{port}/postgres",  # Attempt 1: postgres user with the env password
+        f"postgresql://postgres@{host}:{port}/postgres",             # Attempt 2: postgres user passwordless (trust)
+        f"postgresql://postgres:postgres@{host}:{port}/postgres"     # Attempt 3: postgres user with default password 'postgres'
+    ]
     
-    try:
-        print(f"Connecting to Postgres at {host}:{port} as user 'postgres' to setup roles...")
-        conn = psycopg2.connect(postgres_url)
-        conn.autocommit = True
-        cursor = conn.cursor()
-        
-        # Create user role if not exists
-        cursor.execute(f"""
-            DO $$
-            BEGIN
-              IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '{username}') THEN
-                CREATE ROLE {username} WITH LOGIN SUPERUSER PASSWORD '{password}';
-              END IF;
-            END
-            $$;
-        """)
-        print(f"User role '{username}' verified/created.")
-        
-        # Check and create database
-        cursor.execute("SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s", (db_name,))
-        exists = cursor.fetchone()
-        
-        if not exists:
-            print(f"Database '{db_name}' does not exist. Creating...")
-            cursor.execute(f'CREATE DATABASE "{db_name}" WITH OWNER {username} ENCODING \'UTF8\'')
-            print(f"Database '{db_name}' created successfully!")
-        else:
-            print(f"Database '{db_name}' already exists.")
+    conn = None
+    for url in connection_attempts:
+        try:
+            conn = psycopg2.connect(url)
+            conn.autocommit = True
+            break
+        except Exception:
+            continue
             
-        cursor.close()
-        conn.close()
-    except Exception as e:
-        print(f"Warning: Setup via 'postgres' user trust connection failed: {e}")
+    if conn is not None:
+        try:
+            print(f"Connecting to Postgres at {host}:{port} as user 'postgres' to setup roles...")
+            cursor = conn.cursor()
+            
+            # Create user role if not exists
+            cursor.execute(f"""
+                DO $$
+                BEGIN
+                  IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '{username}') THEN
+                    CREATE ROLE {username} WITH LOGIN SUPERUSER PASSWORD '{password}';
+                  END IF;
+                END
+                $$;
+            """)
+            print(f"User role '{username}' verified/created.")
+            
+            # Check and create database
+            cursor.execute("SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s", (db_name,))
+            exists = cursor.fetchone()
+            
+            if not exists:
+                print(f"Database '{db_name}' does not exist. Creating...")
+                cursor.execute(f'CREATE DATABASE "{db_name}" WITH OWNER {username} ENCODING \'UTF8\'')
+                print(f"Database '{db_name}' created successfully!")
+            else:
+                print(f"Database '{db_name}' already exists.")
+                
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            print(f"Warning: Setup database/roles failed: {e}")
+            print("Will attempt direct connection with DATABASE_URL...")
+    else:
+        print("Warning: Setup via 'postgres' user connection failed (all attempts failed).")
         print("Will attempt direct connection with DATABASE_URL...")
+
 
     # 2. Verify connection with the final DATABASE_URL, create tables if not exists
     try:
