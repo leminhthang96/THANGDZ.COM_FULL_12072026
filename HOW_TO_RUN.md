@@ -4,6 +4,17 @@ Dự án bao gồm 3 phần chính chạy độc lập trực tiếp trên môi 
 
 ---
 
+## ⚡ KHỞI CHẠY NHANH BẰNG SCRIPT TỰ ĐỘNG (KHUYÊN DÙNG TRÊN WINDOWS)
+
+Để thuận tiện và tiết kiệm thời gian khởi chạy thủ công, bạn chỉ cần click đúp vào file [start_local.bat](file:///d:/du_an_ca_nhan/WEBSITE_THANGDZ/THANGDZ.COM_FULL_01072026/start_local.bat) ngay tại thư mục gốc. Một bảng điều khiển trực quan sẽ hiện ra cho phép bạn:
+* **Nhập 1:** Khởi chạy đồng thời cả Backend (FastAPI) và 2 Frontend (Website chính và Admin) ở chế độ phát triển (Development). Công cụ sẽ tự động mở ra 3 cửa sổ command prompt tương ứng.
+* **Nhập 2:** Build production và khởi chạy thử nghiệm hiệu năng của cả 3 ứng dụng ở local.
+* **Nhập 3:** Tự động tạo venv, cài đặt toàn bộ thư viện `pip` và `npm` cho cả 3 thư mục dự án (khuyên dùng khi chạy lần đầu tiên).
+* **Nhập 4:** Thoát công cụ.
+
+---
+
+
 ## 1. KHỞI CHẠY BACKEND (FASTAPI) - CỔNG 8000
 
 * **Yêu cầu:** Máy đã cài sẵn Python và cơ sở dữ liệu PostgreSQL đang chạy.
