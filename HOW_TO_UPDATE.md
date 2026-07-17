@@ -134,3 +134,57 @@ Tạo endpoint API (ví dụ: `/api/system/update`) để xử lý các việc s
   ```bash
   sudo journalctl -u thangdz-backend -f -n 100
   ```
+
+---
+
+## HƯỚNG DẪN THAY ĐỔI ĐƯỜNG DẪN API WEBHOOK CỦA N8N CHATBOT
+
+Khi bạn muốn thay đổi URL Webhook n8n (ví dụ thay đổi kịch bản chatbot AI) mà không muốn thao tác thủ công trên VPS, hãy thực hiện theo hướng dẫn sau.
+
+### Bước 1: Thay đổi URL trong mã nguồn local (Sửa 3 chỗ)
+
+1. **File cấu hình chatbot của Frontend:**
+   * Mở file [website_thangdz/frontend/src/app/chatbot-api/route.ts](file:///d:/vibecoding_canhan/THANGDZ.COM_FULL_12072026/website_thangdz/frontend/src/app/chatbot-api/route.ts)
+   * Tìm và thay đổi URL trong hằng số `N8N_FALLBACK_URL` ở đầu file:
+     ```typescript
+     const N8N_FALLBACK_URL = "https://đường-dẫn-n8n-mới-của-bạn";
+     ```
+
+2. **File kịch bản tự động cập nhật hệ thống:**
+   * Mở file [update.sh](file:///d:/vibecoding_canhan/THANGDZ.COM_FULL_12072026/update.sh)
+   * Tìm khối lệnh tạo file `.env.local` tự động (ở khoảng dòng 80-90) và đổi URL:
+     ```bash
+     N8N_CHAT_WEBHOOK_URL=https://đường-dẫn-n8n-mới-của-bạn
+     ```
+
+3. **File triển khai dự án ban đầu:**
+   * Mở file [deploy.sh](file:///d:/vibecoding_canhan/THANGDZ.COM_FULL_12072026/deploy.sh)
+   * Tìm khối lệnh tạo file `.env.local` tự động và thay đổi URL:
+     ```bash
+     N8N_CHAT_WEBHOOK_URL=https://đường-dẫn-n8n-mới-của-bạn
+     ```
+
+### Bước 2: Đóng gói và cập nhật
+
+1. Thay đổi phiên bản (tăng version) trong file [version.json](file:///d:/vibecoding_canhan/THANGDZ.COM_FULL_12072026/version.json).
+2. Chạy file đóng gói cập nhật ở local:
+   ```bash
+   python make_zip.py
+   ```
+3. Upload file `update.zip` và `version.json` mới lên R2 Cloudflare.
+
+### Bước 3: Áp dụng thay đổi trên VPS
+
+Do hệ thống lưu cache file cấu hình `.env.local` cũ trên VPS để đảm bảo an toàn dữ liệu, bạn cần thực hiện 1 trong 2 cách sau để áp dụng URL mới:
+
+* **Cách 1 (Nhanh nhất - Không cần SSH):** 
+  Truy cập vào VPS thông qua SFTP (ví dụ FileZilla), vào thư mục `/var/www/THANGDZ.COM_FULL_12072026-Production/website_thangdz/frontend/` và **Xóa file `.env.local`**.
+  Sau đó vào trang Admin bấm **"Cập nhật ngay"**, hệ thống sẽ tự động tạo lại file `.env.local` mới có chứa URL n8n mới.
+  
+* **Cách 2 (Sửa trực tiếp):**
+  SSH vào VPS và mở file `/var/www/THANGDZ.COM_FULL_12072026-Production/website_thangdz/frontend/.env.local` ra sửa trực tiếp URL ở biến `N8N_CHAT_WEBHOOK_URL`. 
+  Sau đó chạy lệnh restart:
+  ```bash
+  sudo -u www pm2 restart thangdz-frontend
+  ```
+

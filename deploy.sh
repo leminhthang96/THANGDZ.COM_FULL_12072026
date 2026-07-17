@@ -216,7 +216,7 @@ fi
 if [ "$WRITE_ENV" = "true" ]; then
   echo -e "Đang ghi cấu hình .env mới cho backend..."
   cat <<EOF > .env
-DATABASE_URL=postgresql://postgresql:Thang123456@localhost:5432/thangdz_web
+DATABASE_URL=postgresql://postgresql:Thang123456@127.0.0.1:5432/thangdz_web
 SECRET_KEY=b9000a6e744d2d48bf5b27376c9a997092928502db1bc6c1ec0c1285bf8a48b8
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 REFRESH_TOKEN_EXPIRE_DAYS=7
@@ -422,6 +422,15 @@ else
   echo -e "${RED}Cảnh báo: Có lỗi xảy ra trong quá trình cài đặt SSL. Vui lòng kiểm tra lại cấu hình DNS của bạn đã trỏ đúng về IP của VPS này chưa, sau đó chạy lại lệnh:${NC}"
   echo -e "  sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN"
 fi
+
+# Bước cuối: Fix CRLF cho tất cả file .sh trong project (vì soạn thảo trên Windows)
+echo -e "\n${YELLOW}--- FIX LINE ENDINGS (CRLF -> LF) CHO CÁC FILE SHELL ---${NC}"
+find "$PROJECT_DIR" -name "*.sh" -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/venv/*" | while read -r shfile; do
+    sed -i 's/\r$//' "$shfile"
+    chmod +x "$shfile"
+    echo "  Fixed: $shfile"
+done
+echo -e "${GREEN}Đã fix line endings cho tất cả file .sh!${NC}"
 
 # Kết thúc triển khai
 echo -e "\n${BLUE}======================================================================${NC}"

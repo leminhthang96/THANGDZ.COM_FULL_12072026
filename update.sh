@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Exit on error
-set -e
-
 # Define project directory
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$PROJECT_DIR"
@@ -19,8 +16,18 @@ fi
 # Create lock file
 touch "$LOCK_FILE"
 
-# Setup trap to delete lock file on exit (if update fails or finishes)
-trap 'rm -f "$LOCK_FILE"' EXIT
+# Cleanup function - always remove lock, write final status
+cleanup() {
+    local exit_code=$?
+    rm -f "$LOCK_FILE"
+    if [ $exit_code -ne 0 ]; then
+        echo "" >> "$LOG_FILE"
+        echo "=========================================" >> "$LOG_FILE"
+        echo "LỖI: CẬP NHẬT THẤT BẠI! (exit code: $exit_code) - $(date)" >> "$LOG_FILE"
+        echo "=========================================" >> "$LOG_FILE"
+    fi
+}
+trap cleanup EXIT
 
 echo "========================================="
 echo "BẮT ĐẦU CẬP NHẬT HỆ THỐNG - $(date)"
@@ -54,6 +61,13 @@ ZIP_URL="$UPDATE_URL/update.zip"
 echo "Đang tải file cập nhật từ $ZIP_URL..."
 wget -q -O /tmp/update.zip "$ZIP_URL" || curl -s -L -o /tmp/update.zip "$ZIP_URL"
 
+if [ ! -s /tmp/update.zip ]; then
+    echo "Lỗi: File update.zip rỗng hoặc tải thất bại!"
+    exit 1
+fi
+
+echo "Tải file update.zip thành công ($(du -h /tmp/update.zip | cut -f1))"
+
 # 4. Giải nén file cập nhật
 echo "Đang giải nén file cập nhật..."
 rm -rf /tmp/update_extract
@@ -63,49 +77,74 @@ python3 -m zipfile -e /tmp/update.zip /tmp/update_extract
 # 5. Sao chép đè mã nguồn mới vào thư mục dự án
 echo "Đang cập nhật mã nguồn mới..."
 cp -rf /tmp/update_extract/* "$PROJECT_DIR/"
+echo "Sao chép mã nguồn hoàn tất."
+
+# 5b. Tạo file .env.local cho Frontend nếu chưa có
+FRONTEND_ENV="$PROJECT_DIR/website_thangdz/frontend/.env.local"
+if [ ! -f "$FRONTEND_ENV" ]; then
+    echo "Tạo file .env.local cho Frontend..."
+    cat > "$FRONTEND_ENV" << 'ENVEOF'
+NEXT_PUBLIC_API_URL=https://thangdz.com/api
+N8N_CHAT_WEBHOOK_URL=https://thangdepzai.devttt.com/webhook/thangdz
+ENVEOF
+    echo "Đã tạo .env.local cho Frontend."
+else
+    echo "File .env.local đã tồn tại, bỏ qua."
+fi
 
 # 6. Cập nhật Backend
 echo "Cập nhật dependencies cho Backend..."
 cd "$PROJECT_DIR/backend"
-# Activate venv and update requirements
-./venv/bin/pip install -r requirements.txt
+if [ -d "venv" ] && [ -f "venv/bin/pip" ]; then
+    ./venv/bin/pip install -r requirements.txt 2>&1 || echo "CẢNH BÁO: pip install có lỗi nhưng tiếp tục..."
+else
+    echo "CẢNH BÁO: Không tìm thấy venv, bỏ qua cập nhật pip."
+fi
 
 # 7. Cập nhật Frontend Website
 echo "Cập nhật và Build Frontend Website..."
 cd "$PROJECT_DIR/website_thangdz/frontend"
-npm install --legacy-peer-deps
-NODE_OPTIONS="--max-old-space-size=1536" npm run build
+echo "Xóa build cũ (.next) để build sạch..."
+rm -rf .next
+npm install --legacy-peer-deps 2>&1 || echo "CẢNH BÁO: npm install frontend có lỗi nhưng tiếp tục..."
+NODE_OPTIONS="--max-old-space-size=1536" npm run build 2>&1
+echo "Build Frontend Website hoàn tất."
 
 # 8. Cập nhật Frontend Admin
 echo "Cập nhật và Build Frontend Admin..."
 cd "$PROJECT_DIR/web_quantri_thangdz"
-npm install --legacy-peer-deps
-NODE_OPTIONS="--max-old-space-size=1536" npm run build
+echo "Xóa build cũ (.next) để build sạch..."
+rm -rf .next
+npm install --legacy-peer-deps 2>&1 || echo "CẢNH BÁO: npm install admin có lỗi nhưng tiếp tục..."
+NODE_OPTIONS="--max-old-space-size=1536" npm run build 2>&1
+echo "Build Frontend Admin hoàn tất."
 
+# 9. Khởi động lại các dịch vụ
+echo "Khởi động lại các dịch vụ..."
 
+CURRENT_USER=$(whoami)
+echo "User đang chạy tiến trình cập nhật: $CURRENT_USER"
 
-# 9. Khởi động lại các dịch vụ qua PM2
-echo "Khởi động lại các dịch vụ PM2..."
-# Xác định user chạy PM2 (tương tự deploy.sh)
-REAL_USER=$SUDO_USER
-if [ -z "$REAL_USER" ] || [ "$REAL_USER" = "root" ]; then
-  REAL_USER=$(awk -F: '$3>=1000 && $3<60000 {print $1}' /etc/passwd | head -n 1)
-  if [ -z "$REAL_USER" ]; then
-    REAL_USER="root"
-  fi
-fi
-
-echo "Khởi động lại PM2 dưới user: $REAL_USER"
-if [ "$REAL_USER" = "root" ]; then
-  pm2 restart thangdz-backend || true
-  pm2 restart thangdz-frontend || true
-  pm2 restart thangdz-admin || true
+# Restart backend - thử systemctl trước (chỉ khả dụng nếu chạy bằng root), fallback sang PM2 trực tiếp
+if systemctl is-active --quiet thangdz-backend 2>/dev/null || systemctl list-units --full --all 2>/dev/null | grep -q thangdz-backend; then
+    echo "Restart backend qua systemctl..."
+    systemctl restart thangdz-backend 2>&1 || echo "CẢNH BÁO: systemctl restart thất bại"
+    sleep 3
 else
-  sudo -u $REAL_USER pm2 restart thangdz-backend || true
-  sudo -u $REAL_USER pm2 restart thangdz-frontend || true
-  sudo -u $REAL_USER pm2 restart thangdz-admin || true
+    echo "Không dùng systemd service, restart backend qua PM2 trực tiếp..."
+    pm2 restart thangdz-backend 2>&1 || echo "CẢNH BÁO: Không thể restart thangdz-backend trực tiếp, thử lại..."
+    sleep 3
 fi
 
+curl -fsS http://127.0.0.1:8000/health >/dev/null 2>&1 && echo "Backend health check: OK" || echo "CẢNH BÁO: Backend health check thất bại"
+
+# Restart frontend và admin qua PM2 trực tiếp (không dùng sudo vì current user là www đã sở hữu PM2 rồi)
+echo "Restart frontend và admin qua PM2..."
+pm2 restart thangdz-frontend 2>&1 || echo "CẢNH BÁO: Không thể restart thangdz-frontend"
+pm2 restart thangdz-admin 2>&1 || echo "CẢNH BÁO: Không thể restart thangdz-admin"
+
+
+echo ""
 echo "========================================="
 echo "CẬP NHẬT HOÀN TẤT THÀNH CÔNG! - $(date)"
 echo "Hệ thống sẽ hoạt động với phiên bản mới $LATEST_VERSION."

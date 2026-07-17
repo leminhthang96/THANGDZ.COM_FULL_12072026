@@ -945,6 +945,25 @@ def run_system_update(current_user: User = Depends(check_admin)):
         raise HTTPException(status_code=500, detail=f"Không thể khởi tạo tệp log cập nhật: {str(e)}")
 
     try:
+        # Tự động chuyển CRLF -> LF cho update.sh trước khi chạy (fix lỗi Windows line endings)
+        fix_crlf_cmd = (
+            f"python3 -c \""
+            f"f=open('{update_script}','rb'); data=f.read(); f.close(); "
+            f"data=data.replace(b'\\r\\n', b'\\n').replace(b'\\r', b'\\n'); "
+            f"f=open('{update_script}','wb'); f.write(data); f.close()"
+            f"\""
+        )
+        subprocess.run(fix_crlf_cmd, shell=True, cwd=str(project_root))
+    except Exception:
+        pass  # Nếu không fix được CRLF, vẫn tiếp tục
+
+    try:
+        # Thử cấp quyền thực thi (không bắt buộc vì dùng bash trực tiếp)
+        os.chmod(str(update_script), 0o755)
+    except Exception:
+        pass  # Bỏ qua nếu không có quyền chmod - bash vẫn chạy được
+
+    try:
         cmd = f"nohup bash {update_script} > {log_file} 2>&1 &"
         subprocess.Popen(cmd, shell=True, cwd=str(project_root))
     except Exception as e:
@@ -982,9 +1001,20 @@ def get_system_update_status(current_user: User = Depends(check_admin)):
         except Exception:
             logs = "Lỗi khi đọc file log."
 
+    # Kiểm tra xem update đã kết thúc và kết quả thế nào
+    update_success = False
+    update_failed = False
+    if not is_updating and logs:
+        if "CẬP NHẬT HOÀN TẤT THÀNH CÔNG" in logs:
+            update_success = True
+        elif "CẬP NHẬT THẤT BẠI" in logs:
+            update_failed = True
+
     return {
         "success": True,
         "is_updating": is_updating,
+        "update_success": update_success,
+        "update_failed": update_failed,
         "logs": logs
     }
 

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const N8N_CHAT_WEBHOOK_URL = process.env.N8N_CHAT_WEBHOOK_URL;
+// Fallback URL hardcode để đảm bảo chatbot luôn hoạt động dù .env.local thiếu biến
+const N8N_FALLBACK_URL = "https://thangdepzai.devttt.com/webhook/thangdz";
+const N8N_CHAT_WEBHOOK_URL = process.env.N8N_CHAT_WEBHOOK_URL || N8N_FALLBACK_URL;
 
 type ChatRequestBody = {
   message?: unknown;

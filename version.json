@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
-  "update_url": "https://pub-60c1c60dee41469a9ff4b575ea7e4b43.r2.dev/websiteclone",
-  "changelog": "Khởi tạo hệ thống cập nhật tự động"
+  "version": "1.0.13",
+  "update_url": "https://pub-0465623ce76c44d1b5c3be680aaf56f7.r2.dev/thangdz_update",
+  "changelog": "Đồng bộ database config 127.0.0.1 tránh lỗi IPv6 conflict"
 }

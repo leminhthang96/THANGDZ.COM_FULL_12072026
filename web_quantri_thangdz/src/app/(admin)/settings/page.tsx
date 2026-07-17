@@ -110,10 +110,16 @@ export default function SettingsPage() {
           if (!res.is_updating) {
             clearInterval(interval);
             setUpdating(false);
-            showToast('Cập nhật hoàn tất! Hệ thống sẽ tự động làm mới sau 3 giây.', 'success');
-            setTimeout(() => {
-              window.location.reload();
-            }, 3000);
+            if (res.update_success) {
+              showToast('Cập nhật hoàn tất thành công! Hệ thống sẽ tự động làm mới sau 5 giây.', 'success');
+              setTimeout(() => {
+                window.location.reload();
+              }, 5000);
+            } else if (res.update_failed) {
+              showToast('Cập nhật thất bại! Vui lòng kiểm tra log bên dưới để biết chi tiết lỗi.', 'error');
+            } else {
+              showToast('Quá trình cập nhật đã kết thúc. Kiểm tra log để xem chi tiết.', 'info');
+            }
           }
         }
       } catch (err: any) {
