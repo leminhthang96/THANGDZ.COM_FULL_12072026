@@ -64,7 +64,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <span className="font-extrabold text-2xl tracking-tight text-gradient font-sans">
-            ThangDz.Com
+            Lê Minh Thắng
           </span>
         </Link>
 

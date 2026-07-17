@@ -29,7 +29,7 @@ const serverAuthSnapshot = JSON.stringify({ isLoggedIn: false, email: null, role
 const welcomeMessage: ChatMessage = {
   id: "welcome",
   role: "bot",
-  content: "Chào bạn, mình là trợ lý AI của ThangDz.Com. Bạn cần mình hỗ trợ gì hôm nay?",
+  content: "Chào bạn, mình là trợ lý AI của Lê Minh Thắng. Bạn cần mình hỗ trợ gì hôm nay?",
   createdAt: "",
 };
 

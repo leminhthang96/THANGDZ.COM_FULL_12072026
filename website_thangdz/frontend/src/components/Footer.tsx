@@ -10,7 +10,7 @@ export default function Footer() {
         {/* Brand Column */}
         <div className="md:col-span-2 flex flex-col gap-4">
           <Link href="/" className="font-extrabold text-xl tracking-tight text-gradient">
-            ThangDz.Com
+            Lê Minh Thắng
           </Link>
           <p className="text-slate-400 text-sm max-w-sm leading-relaxed">
             Xây dựng thương hiệu cá nhân, cung cấp giải pháp lập trình chất lượng cao và chia sẻ tài liệu học tập lập trình thực chiến.
