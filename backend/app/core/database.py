@@ -30,7 +30,7 @@ def init_db():
     db_url = settings.DATABASE_URL
     parsed = urlparse(db_url)
     db_name = parsed.path.lstrip('/')
-    port = parsed.port or 5433
+    port = parsed.port or 5432
     host = parsed.hostname or "localhost"
     
     # Extract credentials requested
